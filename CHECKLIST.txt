@@ -1,0 +1,199 @@
+================================================================================
+  SmartLogi – Final Pre-Demo Checklist
+  Generated: 2026-02-23
+================================================================================
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+SECTION 1 – API KEYS & SECRETS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+[ ] SECRET_KEY
+    Provider : Generate locally  →  openssl rand -hex 32
+    Store in : backend/.env
+    Mandatory: YES
+    Safe for Flutter: NO – backend only, never expose
+
+[ ] OPENWEATHER_API_KEY
+    Provider : openweathermap.org  (free tier)
+    Store in : backend/.env only – proxy calls through FastAPI
+    Mandatory: NO (mock data works for hackathon)
+    Safe for Flutter: NO – must stay backend-only
+
+[ ] GOOGLE_MAPS_API_KEY
+    Provider : console.cloud.google.com  (Maps SDK)
+    Store in : backend/.env  (or Flutter --dart-define if needed)
+    Mandatory: NO – flutter_map uses OpenStreetMap, zero key required ✅
+    Safe for Flutter: Partial – restrict by Android/iOS bundle ID if used
+
+[ ] Firebase Keys  (only if adding Firebase Auth)
+    Provider : console.firebase.google.com
+    Store in : android/app/google-services.json
+               ios/Runner/GoogleService-Info.plist
+    Mandatory: NO for MVP/hackathon demo
+    Safe for Flutter: YES – designed for client use
+
+!!! NEVER put SECRET_KEY, DATABASE_URL, or any .env value inside
+!!! Flutter source code, pubspec.yaml, or commit them to Git.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+SECTION 2 – AUTHENTICATION DECISION
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Choice for MVP/Hackathon
+  → MOCK ROLE-SELECTOR AUTH (already implemented) ✅
+  → No Firebase setup required for the demo
+
+Choice for Production (post-hackathon)
+  → Firebase Authentication – Email/Password (Spark plan = 10,000 users/month free)
+
+Token Flow (when Firebase is added):
+  1. User logs in via firebase_auth in Flutter
+  2. Firebase returns ID Token (JWT, 1 hr, auto-refreshed)
+  3. Flutter sends token in  Authorization: Bearer <token>  header
+  4. FastAPI verifies token using firebase-admin SDK (free)
+  5. Backend returns data
+
+Firebase handles automatically:
+  - Password hashing
+  - Token refresh
+  - Session persistence
+
+You must implement manually:
+  - Role mapping (Admin / Driver) via Firestore or custom claims
+  - FastAPI middleware to verify token on protected routes
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+SECTION 3 – DEVELOPER ACTION CHECKLIST
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+── BACKEND (Critical – must complete before running Flutter) ──────────────────
+
+[ ] 1.  cd s:\SmartLogi\backend
+
+[ ] 2.  Create virtual environment
+        python -m venv venv
+
+[ ] 3.  Activate it
+        Windows : .\venv\Scripts\activate
+        Mac/Linux: source venv/bin/activate
+
+[ ] 4.  Install dependencies
+        pip install -r requirements.txt
+
+[ ] 5.  Confirm .env exists at  s:\SmartLogi\backend\.env  ✅ (already created)
+
+[ ] 6.  Start backend server
+        uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+
+[ ] 7.  Verify Swagger UI at  http://localhost:8000/docs
+        Confirm 6 route groups are visible:
+          ✓ Orders
+          ✓ Vehicles
+          ✓ AI – Delay Prediction
+          ✓ AI – Route Optimisation
+          ✓ AI – Sustainability
+          ✓ AI – Full Analysis  ← judge demo endpoint 🔥
+
+[ ] 8.  Test the judge demo endpoint via Swagger:
+        POST /api/v1/ai-analysis
+        Sample body:
+        {
+          "distance_km": 148,
+          "traffic": "heavy",
+          "weather": "fog",
+          "fuel_type": "diesel",
+          "waypoints": ["Mumbai", "Khopoli", "Khandala", "Pune"],
+          "num_deliveries": 3
+        }
+
+── FLUTTER (Run after backend is running) ─────────────────────────────────────
+
+[ ] 9.  cd s:\SmartLogi\frontend\smartlogi
+
+[ ] 10. Install Flutter packages
+        flutter pub get
+
+[ ] 11. Set correct backend URL in  lib/core/api_endpoints.dart
+        Android Emulator  : http://10.0.2.2:8000   (already set ✅)
+        Physical Device   : http://<YOUR-MACHINE-IP>:8000
+        iOS Simulator     : http://localhost:8000
+        Web               : http://localhost:8000
+
+[ ] 12. Confirm no analyzer errors
+        flutter analyze --no-pub
+        Expected: "No issues found!"  ✅
+
+[ ] 13. Run the app
+        flutter run
+
+── OPTIONAL – Add Firebase Auth (post-hackathon) ─────────────────────────────
+
+[ ] 14. Create project at  console.firebase.google.com
+[ ] 15. Enable Authentication → Email/Password provider
+[ ] 16. Add Android app → download google-services.json → place in android/app/
+[ ] 17. flutter pub add firebase_core firebase_auth
+[ ] 18. flutterfire configure
+[ ] 19. pip install firebase-admin  (backend)
+[ ] 20. Download Firebase Admin SDK private key JSON
+        Store in backend/ folder, add filename to .gitignore
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+COMMON MISTAKES – WILL BREAK THE DEMO
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+[ ] ❌ Using baseUrl = localhost on a physical Android device
+       Fix: change to http://<machine-IP>:8000
+
+[ ] ❌ Forgetting to activate venv before pip install
+       Fix: always run  .\venv\Scripts\activate  first
+
+[ ] ❌ Running flutter run before backend is started
+       Fix: uvicorn must be running first
+
+[ ] ❌ Skipping  flutter pub get  after pubspec.yaml changes
+
+[ ] ❌ Committing .env or google-services-account.json to Git
+       Fix: ensure .gitignore includes  .env  and  *.json  service accounts
+
+[ ] ❌ Backend port 8000 blocked by firewall on physical device testing
+       Fix: allow port 8000 in Windows Firewall inbound rules
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+SECTION 4 – FINAL READINESS VERDICT
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  Hackathon-ready?          YES ✅
+  Deployable on free tier?  YES ✅  (Render.com for FastAPI, no hosting for Flutter)
+  flutter analyze clean?    YES ✅  (No issues found)
+  API keys required now?    NONE  (OpenStreetMap = zero key, mocks handle the rest)
+  Missing critical config?  Only: activate venv + pip install + start uvicorn
+
+── Free Tier Deployment Option ───────────────────────────────────────────────
+  Backend  : render.com → New Web Service → Python → start cmd: uvicorn app.main:app
+  Database : SQLite file included (no external DB needed)
+  Frontend : flutter build apk  or  flutter build web
+
+── Summary ───────────────────────────────────────────────────────────────────
+  SmartLogi is fully hackathon-ready.
+  10 Flutter screens, zero analyzer errors.
+  6 backend API endpoints including combined /ai-analysis pipeline.
+  OpenStreetMap maps need no API key.
+  .env is pre-configured.
+
+  MINIMUM STEPS TO DEMO:
+    1. activate venv
+    2. pip install -r requirements.txt
+    3. uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+    4. flutter run
+
+================================================================================
+
+# Terminal 1 – Backend
+cd s:\SmartLogi\backend
+.\venv\Scripts\activate
+pip install -r requirements.txt
+uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+
+# Terminal 2 – Flutter
+cd s:\SmartLogi\frontend\smartlogi
+flutter run

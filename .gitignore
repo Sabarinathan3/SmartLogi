@@ -1,0 +1,114 @@
+# ==============================================================================
+# SmartLogi GitIgnore Rules
+# ==============================================================================
+
+# ── Environment & Security (NEVER COMMIT) ────────────────────────────────────
+.env
+.env.local
+.env.*.local
+*.env
+backend/.env
+backend/secrets/
+secrets/
+*.pem
+*.key
+google-services.json
+GoogleService-Info.plist
+*private-key*.json
+*service-account*.json
+*credentials*.json
+
+# ── OS & System Files ────────────────────────────────────────────────────────
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+[Dd]esktop.ini
+
+# ── IDEs & Editor Configuration ──────────────────────────────────────────────
+.idea/
+.vscode/
+*.iml
+*.ipr
+*.iws
+.project
+.classpath
+.cproject
+.settings/
+*.sublime-project
+*.sublime-workspace
+Session.vim
+.history
+
+# ── Python & Backend (venv / FastAPI) ─────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*$py.class
+.Python
+backend/venv/
+backend/.venv/
+.venv/
+venv/
+ENV/
+env/
+active_venv/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+.ipython/
+.pytest_cache/
+.tox/
+.coverage
+.cache
+backend/api_test_results.txt
+
+# ── Database & Storage ────────────────────────────────────────────────────────
+*.db
+*.sqlite
+*.sqlite3
+smartlogi.db
+smartlogi.db-journal
+smartlogi.db-shm
+smartlogi.db-wal
+*.log
+*.sql
+*.dump
+
+# ── Flutter / Dart (Frontend) ────────────────────────────────────────────────
+frontend/smartlogi/.dart_tool/
+frontend/smartlogi/.flutter-plugins
+frontend/smartlogi/.flutter-plugins-dependencies
+frontend/smartlogi/.pub-cache/
+frontend/smartlogi/.pub/
+frontend/smartlogi/build/
+frontend/smartlogi/coverage/
+frontend/smartlogi/errors.txt
+frontend/smartlogi/errors_utf8.txt
+frontend/smartlogi/smartlogi.iml
+
+# Symbolication & Obfuscation
+**/app.*.symbols
+**/app.*.map.json
+**/ios/Flutter/.last_build_id
+
+# Android specific builds inside flutter
+**/android/app/debug/
+**/android/app/profile/
+**/android/app/release/
